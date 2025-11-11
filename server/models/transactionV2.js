@@ -1,5 +1,9 @@
+// server/models/transaction.js
+
 // Transaction schema
-const mongoose = require('mongoose');
+// CommonJS const mongoose = require('mongoose');
+// ESM
+import mongoose from "mongoose"
 
 const transactionSchema = new mongoose.Schema({
 
@@ -62,4 +66,6 @@ const transactionSchema = new mongoose.Schema({
 
 );
 
-module.exports = mongoose.model('Transaction', transactionSchema);
+// Common JS module.exports = mongoose.model('Transaction', transactionSchema);
+//ESM
+export default mongoose.model("transaction", transactionSchema);
