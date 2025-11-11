@@ -31,27 +31,15 @@ const transactionSchema = new mongoose.Schema({
   },
 
   // Transaction amounts and currencies
-  baseCurrency:  {            // Currency sent by sender
+ currency:  {            // Currency sent by sender
     type: String,
     required: true
   },
-  baseAmount: {               // Amount of currency sent
+  amount: {               // Amount of currency sent
     type: Number,
     required: true,
+    min: 0,               //  Prevents negative amounts
   },
-  quoteCurrency:  {            // Currency sent by receiver
-    type: String,
-    required: true
-  },
-  quoteAmount: {               // Amount of currency sent by receiver
-    type: Number,
-    required: true,
-  },
-  fxRate: {                   // Exchange rate
-    type: Number,
-    required: true,
-  },
-
   // Transaction status information
   status:{
     type: String,
@@ -68,4 +56,4 @@ const transactionSchema = new mongoose.Schema({
 
 // Common JS module.exports = mongoose.model('Transaction', transactionSchema);
 //ESM
-export default mongoose.model("transaction", transactionSchema);
+export default mongoose.model("Transaction", transactionSchema);
