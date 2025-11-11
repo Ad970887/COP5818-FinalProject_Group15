@@ -33,7 +33,8 @@ const transactionSchema = new mongoose.Schema({
   // Transaction amounts and currencies
  currency:  {            // Currency sent by sender
     type: String,
-    required: true
+    enum: ["USDC", "USDT", "DAI"], // Restricts to available coins on platform
+    required: true,
   },
   amount: {               // Amount of currency sent
     type: Number,
