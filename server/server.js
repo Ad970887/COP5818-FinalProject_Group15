@@ -1,15 +1,21 @@
 // Express entry point
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const connectDB = require('./db');
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+// Connect to MongoDB
+connectDB();
 
+// Routes
 app.use('/api/transactions', require('./routes/transactions'));
 
-app.listen(5000, () => console.log('Server running on port 5000'));
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
