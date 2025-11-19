@@ -2,10 +2,9 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-    sender: String,
-    recipient: String,
-    amount: Number,
-    timestamp: { type: Date, default: Date.now }
-});
+    sender: { type: String, required: true },
+    recipient: { type: String, required: true },
+    amount: { type: Number, required: true },
+}, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

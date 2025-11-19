@@ -1,4 +1,3 @@
-// Token transfer logic
 import { ethers } from 'ethers';
 
 // Example USDC contract address and ABI
@@ -8,10 +7,26 @@ const ERC20_ABI = [
 ];
 
 export async function sendStablecoin(recipient, amount) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
-    const tx = await contract.transfer(recipient, ethers.utils.parseUnits(amount, 6)); // USDC has 6 decimals
-    await tx.wait();
-    console.log('Transaction confirmed:', tx.hash);
+    if (!window.ethereum) {
+        throw new Error('MetaMask not detected');
+    }
+
+    try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+
+        // USDC uses 6 decimals
+        const parsedAmount = ethers.utils.parseUnits(amount, 6);
+
+        const tx = await contract.transfer(recipient, parsedAmount);
+        console.log('Transaction sent:', tx.hash);
+
+        await tx.wait();
+        console.log('Transaction confirmed:', tx.hash);
+        return tx.hash;
+    } catch (error) {
+        console.error('Error sending stablecoin:', error);
+        throw error;
+    }
 }
