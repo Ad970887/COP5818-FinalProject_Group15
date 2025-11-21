@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BrowserProvider, Contract, parseUnits } from 'ethers';
 
 // Example USDC contract address and ABI
 const USDC_ADDRESS = '0x...'; // Replace with actual token address
@@ -12,12 +12,12 @@ export async function sendStablecoin(recipient, amount) {
     }
 
     try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(USDC_ADDRESS, ERC20_ABI, signer);
+        const provider = new BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new Contract(USDC_ADDRESS, ERC20_ABI, signer);
 
         // USDC uses 6 decimals
-        const parsedAmount = ethers.utils.parseUnits(amount, 6);
+        const parsedAmount = parseUnits(amount, 6);
 
         const tx = await contract.transfer(recipient, parsedAmount);
         console.log('Transaction sent:', tx.hash);
