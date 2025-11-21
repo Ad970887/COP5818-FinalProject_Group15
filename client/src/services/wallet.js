@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BrowserProvider, formatEther } from 'ethers';
 
 export async function connectWallet() {
     if (!window.ethereum) {
@@ -20,9 +20,9 @@ export async function getBalance(address) {
     }
 
     try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new BrowserProvider(window.ethereum);
         const balance = await provider.getBalance(address);
-        return ethers.utils.formatEther(balance);
+        return formatEther(balance);
     } catch (error) {
         console.error('Error fetching balance:', error);
         throw error;
