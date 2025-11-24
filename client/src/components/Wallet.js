@@ -1,41 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { connectWallet, getBalance } from '../services/wallet';
+import { useState } from 'react';
+import { createUser, getUsers } from '../services/api';
 
-function Wallet() {
-    const [address, setAddress] = useState('');
-    const [balance, setBalance] = useState('');
+export default function Wallet() {
+  const [email,setEmail]=useState("");
+  const [balance,setBalance]=useState(null);
 
-    useEffect(() => {
-        async function init() {
-            try {
-                const addr = await connectWallet();
-                setAddress(addr);
-                const bal = await getBalance(addr);
-                setBalance(bal);
-            } catch (error) {
-                console.error('Error connecting wallet:', error);
-            }
-        }
-        init();
-    }, []);
+  async function loadBalance(){
+    const users=await getUsers();
+    const u=users.find(x=>x.email===email);
+    setBalance(u?u.balance:"Not found");
+  }
 
-    return (
-        <div style={styles.container}>
-            <h2>Your Wallet</h2>
-            <p><strong>Address:</strong> {address || 'Not connected'}</p>
-            <p><strong>Balance:</strong> {balance ? `${balance} ETH` : 'Loading...'}</p>
-        </div>
-    );
+  async function create(){
+    await createUser(email);
+    alert("Wallet created!");
+  }
+
+  return (
+    <div>
+      <h2>Wallet</h2>
+      <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+      <button onClick={create}>Create Wallet</button>
+      <button onClick={loadBalance}>Check Balance</button>
+      {balance!==null && <p>Balance: {balance} tokens</p>}
+    </div>
+  );
 }
-
-const styles = {
-    container: {
-        padding: '15px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        backgroundColor: '#f9f9f9'
-    }
-};
-
-export default Wallet;
