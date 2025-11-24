@@ -1,26 +1,8 @@
-import mongoose from "mongoose"
+const mongoose = require('mongoose');
 
-// Schema to track user balances
-const balanceSchema = new mongoose.Schema({
-    available: { 
-        type: Number, 
-        default: 0 },
-  },
-  { _id: false } // Prevents ids being applied to currencies
-);
-
-// User information schema
 const userSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        index: true,
-    },
+    email: { type: String, required: true, unique: true },
+    balance: { type: Number, default: 0 }
+}, { timestamps: true });
 
-    balances: {
-        type: Map,
-        of: balanceSchema,
-        default: {},
-    },
-})
-
-export default mongoose.model("User", userSchema)
+module.exports = mongoose.model('User', userSchema);
