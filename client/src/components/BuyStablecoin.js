@@ -1,35 +1,33 @@
 import { useState } from 'react';
-import { sendToken } from '../services/api';
+import { buyStablecoin } from '../services/api';
 
-export default function SendForm(){
-  const [sender,setSender]=useState("");
-  const [recipient,setRecipient]=useState("");
-  const [amount,setAmount]=useState("");
+export default function BuyStablecoin(){
+  const [email,setEmail]=useState("");
+  const [usdAmount,setUsdAmount]=useState("");
   const [stablecoin,setStablecoin]=useState("USDC");
   const [error,setError]=useState("");
   const [loading,setLoading]=useState(false);
 
-  async function send(){
+  async function buy(){
     try {
       setLoading(true);
       setError("");
-      const numAmount = Number(amount);
+      const numAmount = Number(usdAmount);
       if (!Number.isFinite(numAmount) || numAmount <= 0) {
         setError("Amount must be a positive number");
         return;
       }
-      const res=await sendToken(sender,recipient,numAmount,stablecoin);
+      const res=await buyStablecoin(email,numAmount,stablecoin);
       if(res.error) {
         setError(res.error);
       } else {
-        alert(`${numAmount} ${stablecoin} sent successfully!`);
-        setSender("");
-        setRecipient("");
-        setAmount("");
+        alert(`Successfully bought ${numAmount} ${stablecoin}!`);
+        setEmail("");
+        setUsdAmount("");
         setStablecoin("USDC");
       }
     } catch (err) {
-      setError("Error sending tokens");
+      setError("Error buying stablecoins");
     } finally {
       setLoading(false);
     }
@@ -37,10 +35,9 @@ export default function SendForm(){
 
   return (
     <div>
-      <h2>Send Tokens</h2>
-      <input placeholder="Sender Email" value={sender} onChange={e=>setSender(e.target.value)} />
-      <input placeholder="Recipient Email" value={recipient} onChange={e=>setRecipient(e.target.value)} />
-      <input type="number" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value)} />
+      <h2>Buy Stablecoins</h2>
+      <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+      <input type="number" placeholder="USD Amount" value={usdAmount} onChange={e=>setUsdAmount(e.target.value)} />
       <label>
         <strong>Stablecoin:</strong>
         <select value={stablecoin} onChange={e=>setStablecoin(e.target.value)} style={{width: '100%', padding: '8px', marginTop: '4px'}}>
@@ -49,7 +46,7 @@ export default function SendForm(){
           <option value="DAI">🟡 DAI (Decentralized)</option>
         </select>
       </label>
-      <button onClick={send} disabled={loading}>Send {stablecoin}</button>
+      <button onClick={buy} disabled={loading}>Buy {stablecoin}</button>
       {error && <p style={{color: 'red'}}>{error}</p>}
     </div>
   );

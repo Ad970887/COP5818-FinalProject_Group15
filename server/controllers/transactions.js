@@ -1,12 +1,17 @@
-const Transaction = require('../models/Transaction');
+const Transaction = require('../models/transaction');
 const User = require('../models/user');
 
 exports.logTransaction = async (req, res) => {
     try {
-        const { sender, recipient, amount } = req.body;
+        const { sender, recipient, amount, stablecoin } = req.body;
+        const coin = stablecoin || 'USDC';
 
         if (amount <= 0) {
             return res.status(400).json({ error: "Amount must be positive" });
+        }
+
+        if (!['USDC', 'USDT', 'DAI'].includes(coin)) {
+            return res.status(400).json({ error: "Invalid stablecoin" });
         }
 
         const senderUser = await User.findOne({ email: sender });
@@ -16,15 +21,21 @@ exports.logTransaction = async (req, res) => {
             return res.status(404).json({ error: "Sender or recipient not found" });
         }
 
-        if (senderUser.balance < amount) {
-            return res.status(400).json({ error: "Insufficient balance" });
+        const senderCoinBalance = senderUser.stablecoins[coin];
+        if (senderCoinBalance < amount) {
+            return res.status(400).json({ error: `Insufficient ${coin} balance` });
         }
 
-        const sBefore = senderUser.balance;
-        const rBefore = recipientUser.balance;
+        const sBefore = senderCoinBalance;
+        const rBefore = recipientUser.stablecoins[coin] || 0;
 
-        senderUser.balance -= amount;
-        recipientUser.balance += amount;
+        // Deduct from sender, add to recipient
+        senderUser.stablecoins[coin] -= amount;
+        recipientUser.stablecoins[coin] = (recipientUser.stablecoins[coin] || 0) + amount;
+        
+        // Also update total USD balance (1:1 conversion)
+        senderUser.balance = Object.values(senderUser.stablecoins).reduce((a, b) => a + b, 0);
+        recipientUser.balance = Object.values(recipientUser.stablecoins).reduce((a, b) => a + b, 0);
 
         await senderUser.save();
         await recipientUser.save();
@@ -33,10 +44,11 @@ exports.logTransaction = async (req, res) => {
             sender,
             recipient,
             amount,
+            stablecoin: coin,
             senderBalanceBefore: sBefore,
-            senderBalanceAfter: senderUser.balance,
+            senderBalanceAfter: senderCoinBalance - amount,
             recipientBalanceBefore: rBefore,
-            recipientBalanceAfter: recipientUser.balance
+            recipientBalanceAfter: rBefore + amount
         });
 
         await tx.save();
